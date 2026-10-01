@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste2Value - Platform Sirkular Material Sisa UMKM</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#0B192C',
+                            800: '#1E3E62',
+                            700: '#1E3A8A',
+                            600: '#2563EB',
+                            100: '#EFF6FF',
+                            50: '#F8FAFC'
+                        },
+                        accent: {
+                            green: '#10B981',
+                            amber: '#F59E0B'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #0F172A;
+            padding-bottom: 75px; /* Spacing for bottom navbar */
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        .glow-navy {
+            box-shadow: 0 4px 20px -2px rgba(11, 25, 44, 0.15);
+        }
+        .scanner-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #2563EB, transparent);
+            animation: scan 2s infinite ease-in-out;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 95%; }
+            100% { top: 0%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased selection:bg-navy-700 selection:text-white">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-navy-900 text-white shadow-md border-b border-navy-800">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-navy-600 to-emerald-500 flex items-center justify-center font-extrabold text-xl text-white shadow-lg">
+                    W2V
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide text-white flex items-center gap-1.5">
+                        Waste2Value
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded-full border border-emerald-500/30">UMKM Platform</span>
+                    </h1>
+                    <p class="text-xs text-slate-300">Hubungkan Sisa Produksi & Bahan Baku Terjangkau</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Stats & Actions -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openModal('aiModal')" class="hidden md:flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white text-xs px-3.5 py-2 rounded-lg transition border border-slate-700">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-400">="></i>
+                    <span>Identifikasi AI</span>
+                </button>
+                <button onclick="openModal('addListingModal')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3.5 py-2 rounded-lg font-medium transition shadow-md flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">Tambah Postingan</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Filter Switcher Header Bar -->
+        <div class="bg-navy-800 px-4 py-2 border-t border-navy-700/50">
+            <div class="max-w-7xl mx-auto flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto custom-scrollbar py-1">
+                    <button onclick="switchTab('homeView')" id="topTab-home" class="top-tab-btn px-3 py-1.5 rounded-md font-medium text-white bg-navy-600 whitespace-nowrap transition">
+                        <i class="fa-solid fa-house mr-1.5"></i>Beranda Hub
+                    </button>
+                    <button onclick="switchTab('penjualView')" id="topTab-penjual" class="top-tab-btn px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white hover:bg-navy-700/60 whitespace-nowrap transition">
+                        <i class="fa-solid fa-store mr-1.5 text-amber-400"></i>Menu Penjual (Sisa Material)
+                    </button>
+                    <button onclick="switchTab('pembeliView')" id="topTab-pembeli" class="top-tab-btn px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white hover:bg-navy-700/60 whitespace-nowrap transition">
+                        <i class="fa-solid fa-cart-shopping mr-1.5 text-blue-400"></i>Menu Pembeli (Kebutuhan)
+                    </button>
+                    <button onclick="switchTab('aiMatchView')" id="topTab-aiMatch" class="top-tab-btn px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white hover:bg-navy-700/60 whitespace-nowrap transition">
+                        <i class="fa-solid fa-robot mr-1.5 text-emerald-400"></i>Pencocokan AI
+                    </button>
+                </div>
+                <div class="hidden lg:flex items-center text-slate-300 text-xs gap-3 pl-2 border-l border-navy-700">
+                    <span><i class="fa-solid fa-leaf text-emerald-400 mr-1"></i> Terbantu: <b>42.8 Ton</b></span>
+                    <span><i class="fa-solid fa-hand-holding-dollar text-amber-400 mr-1"></i> Hemat UMKM: <b>Rp 185M+</b></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- ==================== VIEW 1: HOME DASHBOARD ==================== -->
+        <section id="homeView" class="view-section space-y-6">
+            <!-- Hero Impact Banner -->
+            <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-navy-700">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-8 space-y-3">
+                        <span class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-500/30">
+                            <i class="fa-solid fa-recycle mr-1"></i> Ekonomi Sirkular Khusus UMKM
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+                            Ubah Sisa Produksi Menjadi <span class="text-blue-400 underline decoration-emerald-500">Nilai Ekonomi Baru</span>
+                        </h2>
+                        <p class="text-slate-300 text-sm max-w-2xl">
+                            Waste2Value mengidentifikasi material sisa pabrik / usaha mikro Anda secara otomatis, lalu mempertemukan penjual limbah berkualitas dengan UMKM pembeli bahan baku murah.
+                        </p>
+                        <div class="pt-2 flex flex-wrap gap-3">
+                            <button onclick="switchTab('penjualView')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs sm:text-sm px-5 py-2.5 rounded-xl transition shadow-lg flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-stacked"></i> Cari Material Sisa Murah
+                            </button>
+                            <button onclick="switchTab('pembeliView')" class="bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs sm:text-sm px-5 py-2.5 rounded-xl border border-slate-600 transition flex items-center gap-2">
+                                <i class="fa-solid fa-bullhorn text-amber-400"></i> Pasang Kebutuhan Bahan Sisa
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick AI Scanner Callout Box -->
+                    <div class="lg:col-span-4 bg-navy-800/80 p-4 rounded-xl border border-navy-700 shadow-inner flex flex-col items-center text-center space-y-3">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-camera-retro"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-sm text-white">Bingung Jenis Material Anda?</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Sistem AI kami dapat mengidentifikasi foto material & estimasi nilai jualnya.</p>
+                        </div>
+                        <button onclick="openModal('aiModal')" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-xs py-2.5 px-4 rounded-lg transition shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Pindai Material Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Value Metrics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-navy-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-industry"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-navy-900">1,240+</div>
+                        <div class="text-xs text-slate-500">UMKM Terhubung</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-recycle"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-navy-900">85%</div>
+                        <div class="text-xs text-slate-500">Material Terdaur Ulang</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-navy-900">40 - 65%</div>
+                        <div class="text-xs text-slate-500">Efisiensi Biaya Bahan Baku</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/80 flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-navy-900">98%</div>
+                        <div class="text-xs text-slate-500">Kecocokan AI System</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material Categories Carousel/Grid -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-navy-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-blue-600"></i> Kategori Material Sisa Produksi
+                    </h3>
+                    <span class="text-xs text-slate-500">Pilihan terpopuler UMKM</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                    <div onclick="filterCategory('Tekstil')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-shirt"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Tekstil & Kain</span>
+                        <span class="text-[10px] text-slate-400">142 Listing</span>
+                    </div>
+                    <div onclick="filterCategory('Kayu')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-amber-50 text-amber-700 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Kayu & Mebel</span>
+                        <span class="text-[10px] text-slate-400">98 Listing</span>
+                    </div>
+                    <div onclick="filterCategory('Plastik')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-bottle-water"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Plastik & Kemasan</span>
+                        <span class="text-[10px] text-slate-400">210 Listing</span>
+                    </div>
+                    <div onclick="filterCategory('Logam')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-cubes-stacked"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Logam & Scrap</span>
+                        <span class="text-[10px] text-slate-400">76 Listing</span>
+                    </div>
+                    <div onclick="filterCategory('Kertas')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-orange-50 text-orange-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Kertas & Karton</span>
+                        <span class="text-[10px] text-slate-400">115 Listing</span>
+                    </div>
+                    <div onclick="filterCategory('Organik')" class="bg-white hover:border-blue-500 p-3 rounded-xl border border-slate-200 text-center cursor-pointer transition shadow-sm hover:shadow group">
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 group-hover:bg-teal-50 text-teal-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-apple-whole"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-700 group-hover:text-blue-700 block">Organik / Pangan</span>
+                        <span class="text-[10px] text-slate-400">54 Listing</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+                <!-- Highlight Penjual Section -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <h3 class="font-bold text-navy-900 text-base">Material Sisa Dijual Terbaru</h3>
+                        </div>
+                        <button onclick="switchTab('penjualView')" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
+                            Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3" id="homePenjualContainer">
+                        <!-- Dynamic Penjual Cards injected here -->
+                    </div>
+                </div>
+
+                <!-- Highlight Pembeli Section -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+                            <h3 class="font-bold text-navy-900 text-base">Permintaan Bahan Baku UMKM</h3>
+                        </div>
+                        <button onclick="switchTab('pembeliView')" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
+                            Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3" id="homePembeliContainer">
+                        <!-- Dynamic Pembeli Cards injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 2: MENU PENJUAL ==================== -->
+        <section id="penjualView" class="view-section space-y-6 hidden">
+            <!-- Header Penjual Banner -->
+            <div class="bg-navy-900 text-white rounded-2xl p-6 border border-navy-800 shadow-md">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-amber-400 font-semibold text-xs mb-1">
+                            <i class="fa-solid fa-store"></i> PORTAL UMKM PENJUAL SISA MATERIAL
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold">Katalog Material Sisa Produksi Siap Pakai</h2>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl">
+                            Daftar material perca, potongan kayu, limbah plastik, dan scrap pabrik yang dijual langsung oleh pemilik usaha dengan biodata terverifikasi.
+                        </p>
+                    </div>
+                    <button onclick="openModal('addListingModal')" class="bg-amber-500 hover:bg-amber-600 text-navy-900 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 shrink-0">
+                        <i class="fa-solid fa-plus-circle"></i> Jual Material Sisa Saya
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchPenjualInput" onkeyup="filterPenjualListings()" placeholder="Cari material (misal: perca katun, kayu jati, pallet)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-navy-600">
+                </div>
+                
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                    <select id="filterPenjualKat" onchange="filterPenjualListings()" class="bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 text-slate-700 focus:outline-none">
+                        <option value="ALL">Semua Kategori</option>
+                        <option value="Tekstil">Tekstil & Kain</option>
+                        <option value="Kayu">Kayu & Mebel</option>
+                        <option value="Plastik">Plastik & Kemasan</option>
+                        <option value="Logam">Logam & Scrap</option>
+                        <option value="Kertas">Kertas & Karton</option>
+                    </select>
+
+                    <select id="filterPenjualKota" onchange="filterPenjualListings()" class="bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 text-slate-700 focus:outline-none">
+                        <option value="ALL">Semua Lokasi</option>
+                        <option value="Bandung">Bandung</option>
+                        <option value="Jepara">Jepara</option>
+                        <option value="Surabaya">Surabaya</option>
+                        <option value="Solo">Solo</option>
+                        <option value="Jakarta">Jakarta</option>
+                    </select>
+
+                    <span class="text-xs text-slate-400 font-medium px-2 border-l border-slate-200 hidden sm:inline" id="penjualCountBadge">4 Material</span>
+                </div>
+            </div>
+
+            <!-- Penjual Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="penjualGridContainer">
+                <!-- Dynamically populated by JS -->
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 3: MENU PEMBELI ==================== -->
+        <section id="pembeliView" class="view-section space-y-6 hidden">
+            <!-- Header Pembeli Banner -->
+            <div class="bg-navy-900 text-white rounded-2xl p-6 border border-navy-800 shadow-md">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-blue-400 font-semibold text-xs mb-1">
+                            <i class="fa-solid fa-cart-shopping"></i> PORTAL UMKM PEMBELI BAHAN BAKU ALTERNATIF
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold">Papan Permintaan Material Sisa UMKM</h2>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl">
+                            Temukan UMKM yang membutuhkan material sisa Anda. Efisiensi biaya produksi hingga 60% dengan bahan alternatif.
+                        </p>
+                    </div>
+                    <button onclick="openModal('addDemandModal')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 shrink-0">
+                        <i class="fa-solid fa-bullhorn"></i> Pasang Kebutuhan Material
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchPembeliInput" onkeyup="filterPembeliListings()" placeholder="Cari kebutuhan (misal: drum bekas, sisa benang, potongan drum)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-navy-600">
+                </div>
+                
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                    <select id="filterPembeliKat" onchange="filterPembeliListings()" class="bg-slate-50 border border-slate-200 rounded-lg text-xs px-3 py-2 text-slate-700 focus:outline-none">
+                        <option value="ALL">Semua Kategori</option>
+                        <option value="Tekstil">Tekstil & Kain</option>
+                        <option value="Kayu">Kayu & Mebel</option>
+                        <option value="Plastik">Plastik & Kemasan</option>
+                        <option value="Organik">Organik / Pangan</option>
+                        <option value="Logam">Logam & Scrap</option>
+                    </select>
+
+                    <span class="text-xs text-slate-400 font-medium px-2 border-l border-slate-200 hidden sm:inline" id="pembeliCountBadge">4 Permintaan</span>
+                </div>
+            </div>
+
+            <!-- Pembeli Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="pembeliGridContainer">
+                <!-- Dynamically populated by JS -->
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 4: PENCOCOKAN AI ==================== -->
+        <section id="aiMatchView" class="view-section space-y-6 hidden">
+            <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 text-white rounded-2xl p-6 border border-navy-700 shadow-xl">
+                <div class="max-w-3xl space-y-3">
+                    <span class="bg-emerald-500/20 text-emerald-300 font-semibold text-xs px-3 py-1 rounded-full border border-emerald-500/30 inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-microchip"></i> Smart Waste Matching System v2.4
+                    </span>
+                    <h2 class="text-2xl font-extrabold">Sistem AI Penjodoh Material Sisa</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        Algoritma Waste2Value secara otomatis menganalisis komposisi, tingkat kebersihan, radius lokasi UMKM, serta spesifikasi material untuk menemukan pasangan transaksi terideal dengan harga paling menguntungkan.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interactive AI Matcher Tool Widget -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Interactive Specs Form -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="font-bold text-navy-900 text-sm flex items-center gap-2 border-b border-slate-100 pb-2">
+                        <i class="fa-solid fa-sliders text-blue-600"></i> Masukkan Spesifikasi Material Anda
+                    </h3>
+                    
+                    <form id="aiMatcherForm" onsubmit="runAIMatch(event)" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-1">Peran Anda</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="border border-slate-200 rounded-lg p-2 flex items-center gap-2 cursor-pointer hover:bg-slate-50 bg-blue-50/50 border-blue-500">
+                                    <input type="radio" name="userRole" value="penjual" checked class="text-blue-600">
+                                    <span class="font-medium text-navy-900">Saya Memiliki Material Sisa</span>
+                                </label>
+                                <label class="border border-slate-200 rounded-lg p-2 flex items-center gap-2 cursor-pointer hover:bg-slate-50">
+                                    <input type="radio" name="userRole" value="pembeli" class="text-blue-600">
+                                    <span class="font-medium text-navy-900">Saya Mencari Bahan Baku</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-1">Kategori Utama</label>
+                            <select id="aiCatSelect" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-navy-600 outline-none">
+                                <option value="Tekstil">Tekstil / Potongan Kain Perca</option>
+                                <option value="Kayu">Kayu / Serbuk & Potongan Mebel</option>
+                                <option value="Plastik">Plastik PET / HDPE / PP</option>
+                                <option value="Organik">Limbah Organik / Ampas Makanan</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-1">Estimasi Volume Per Bulan</label>
+                            <select id="aiVolSelect" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-navy-600 outline-none">
+                                <option value="Kecil">Kecil (10 - 100 Kg / Bulan)</option>
+                                <option value="Sedang">Sedang (100 - 500 Kg / Bulan)</option>
+                                <option value="Besar">Besar (> 500 Kg / Tonase)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-1">Wilayah / Lokasi Usaha</label>
+                            <select id="aiLocSelect" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-navy-600 outline-none">
+                                <option value="Bandung">Bandung & Sekitarnya</option>
+                                <option value="Jepara">Jepara / Kudus / Semarang</option>
+                                <option value="Surabaya">Surabaya & Sidoarjo</option>
+                                <option value="Solo">Solo / Sukoharjo</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-3 rounded-xl transition shadow flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i> Jalankan Pencocokan Pintar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: AI Matching Output Results -->
+                <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                            <h3 class="font-bold text-navy-900 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-nodes text-emerald-600"></i> Rekomendasi Pihak Paling Sesuai
+                            </h3>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full" id="aiMatchCountBadge">3 Match Ditemukan</span>
+                        </div>
+
+                        <!-- Results List -->
+                        <div class="space-y-3" id="aiResultsList">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-xs text-slate-600 flex items-start gap-2 mt-4">
+                        <i class="fa-solid fa-circle-info text-blue-600 text-sm mt-0.5"></i>
+                        <span>Sistem AI memprioritaskan keterjangkauan jarak geografis untuk menekan biaya logistik pengiriman antar-UMKM.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 5: PROFIL / BIODATA UMKM ==================== -->
+        <section id="profilView" class="view-section space-y-6 hidden">
+            <!-- Profile Header Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm relative overflow-hidden">
+                <div class="h-24 bg-gradient-to-r from-navy-900 to-blue-900 -mx-6 -mt-6 mb-4 px-6 pt-4 text-white flex justify-end">
+                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[11px] font-semibold px-3 py-1 h-fit rounded-full flex items-center gap-1">
+                        <i class="fa-solid fa-shield-halved"></i> Terverifikasi UMKM Mandiri
+                    </span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 rounded-2xl bg-navy-800 text-white font-extrabold text-2xl flex items-center justify-center border-4 border-white shadow-lg shrink-0">
+                            CV
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-navy-900 flex items-center gap-2">
+                                CV Dapur Craft Nusantara
+                                <i class="fa-solid fa-circle-check text-blue-600 text-sm"></i>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Produsen Kerajinan & Aksesoris Rumah Tangga Daur Ulang</p>
+                            <div class="flex items-center gap-3 text-xs text-slate-600 mt-2">
+                                <span><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> Bandung, Jawa Barat</span>
+                                <span><i class="fa-solid fa-phone text-slate-400 mr-1"></i> +62 812-9876-5432</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="alert('Biodata berhasil diperbarui!')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-4 py-2 rounded-xl border border-slate-300 transition flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Biodata
+                    </button>
+                </div>
+            </div>
+
+            <!-- Details Tabs & Impact Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Biodata Summary -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="font-bold text-navy-900 text-sm border-b border-slate-100 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-building text-blue-600"></i> Biodata Perusahaan
+                    </h3>
+                    
+                    <div class="space-y-2.5 text-xs">
+                        <div>
+                            <span class="text-slate-400 block">NIB / Legalitas:</span>
+                            <span class="font-medium text-slate-800">9120003418291 (UMKM Micro)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Kategori Usaha:</span>
+                            <span class="font-medium text-slate-800">Kerajinan Tekstil & Aksesoris</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Kebutuhan Bahan Utama:</span>
+                            <span class="font-medium text-slate-800">Kain Perca Denim & Katun (100 kg/bln)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Nomor Kontak WhatsApp Resmi:</span>
+                            <a href="https://wa.me/6281298765432" target="_blank" class="font-semibold text-emerald-600 hover:underline flex items-center gap-1.5 mt-0.5">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> +62 812-9876-5432 (Bpk. Bambang)
+                            </a>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Alamat Workshop:</span>
+                            <span class="font-medium text-slate-800">Jl. Industri Kriya No. 45, Cibaduyut, Bandung</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active My Listings & History -->
+                <div class="md:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h3 class="font-bold text-navy-900 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-blue-600"></i> Aktivitas & Postingan Saya
+                        </h3>
+                        <span class="text-xs text-slate-500">2 Aktivitas Aktif</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-slate-800">[Pembeli] Kebutuhan Kain Perca Denim</h4>
+                                    <span class="text-[10px] text-slate-500">Diposting: 2 hari lalu • Target 150 kg</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-1 rounded">Aktif Searching</span>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">
+                                    <i class="fa-solid fa-box"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs text-slate-800">[Penjual] Sisa Benang Poliester Sisa Gulungan</h4>
+                                    <span class="text-[10px] text-slate-500">Diposting: 5 hari lalu • 25 Kg Available</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded">1 Match AI</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: COMPANY BIODATA & CONTACT DETAIL MODAL -->
+    <div id="companyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 transform transition-all">
+            <div class="bg-navy-900 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-address-card text-emerald-400"></i>
+                    <h3 class="font-bold text-sm text-white" id="modalCompanyTitle">Biodata Perusahaan & Kontak</h3>
+                </div>
+                <button onclick="closeModal('companyModal')" class="text-slate-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <!-- Profile Banner in Modal -->
+                <div class="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="w-12 h-12 rounded-xl bg-navy-800 text-white font-bold flex items-center justify-center text-lg shrink-0" id="modalCompanyAvatar">
+                        UM
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-navy-900" id="modalCompanyName">Nama Perusahaan</h4>
+                        <p class="text-slate-500 text-[11px]" id="modalCompanyType">Jenis Usaha / Sektor Produk</p>
+                        <span class="inline-block mt-1 bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2 py-0.5 rounded">
+                            <i class="fa-solid fa-shield-check mr-1"></i>Terverifikasi Waste2Value
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 border-t border-slate-100 pt-3">
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-400">Alamat Usaha:</span>
+                        <span class="col-span-2 font-medium text-slate-800" id="modalCompanyAddress">-</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-400">Panggung Usaha:</span>
+                        <span class="col-span-2 font-medium text-slate-800" id="modalCompanyScale">UMKM Skala Mikro/Kecil</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-400">Penanggung Jawab:</span>
+                        <span class="col-span-2 font-medium text-slate-800" id="modalCompanyPIC">-</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <span class="text-slate-400">Kapasitas Sisa:</span>
+                        <span class="col-span-2 font-medium text-slate-800" id="modalCompanyCapacity">-</span>
+                    </div>
+                </div>
+
+                <!-- Direct Action Contact Box -->
+                <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl space-y-2 text-center">
+                    <p class="text-slate-600 font-medium text-[11px]">Hubungi langsung pihak ini melalui WhatsApp untuk negosiasi harga & pengiriman:</p>
+                    <a id="modalWhatsAppBtn" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl transition shadow flex items-center justify-center gap-2 text-xs">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Hubungi via WhatsApp (<span id="modalPhoneText">0812...</span>)</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 text-right">
+                <button onclick="closeModal('companyModal')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium text-xs px-4 py-2 rounded-lg">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: AI MATERIAL IDENTIFIER SCANNER -->
+    <div id="aiModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+            <div class="bg-navy-900 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i>
+                    <h3 class="font-bold text-sm text-white">Deteksi & Pindai Material Sisa (AI)</h3>
+                </div>
+                <button onclick="closeModal('aiModal')" class="text-slate-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs">
+                <!-- Interactive Upload Box -->
+                <div id="uploadBox" class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 rounded-xl p-6 text-center cursor-pointer transition relative overflow-hidden" onclick="triggerAIScan()">
+                    <div class="scanner-line absolute w-full left-0 hidden" id="scannerLine"></div>
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-600 mb-2"></i>
+                    <h4 class="font-bold text-slate-700 text-sm">Unggah Foto Material Sisa</h4>
+                    <p class="text-slate-400 text-[11px] mt-1">Klik untuk mensimulasikan foto kain perca, potongan kayu, atau limbah plastik</p>
+                </div>
+
+                <!-- Simulation Result Indicator -->
+                <div id="aiScanResult" class="hidden space-y-3 bg-blue-50/70 border border-blue-200 p-3.5 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-navy-900 flex items-center gap-1.5 text-xs">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i> Teridentifikasi: Kain Perca Katun Modal
+                        </span>
+                        <span class="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded">96% Accuracy</span>
+                    </div>
+                    
+                    <div class="space-y-1 text-slate-600 text-[11px]">
+                        <p><b>Kategori:</b> Tekstil & Konveksi</p>
+                        <p><b>Estimasi Nilai Jual:</b> Rp 12.000 - Rp 18.000 / Kg</p>
+                        <p><b>Rekomendasi Penggunaan:</b> Kerajinan Keset, Bahan Isian Bantal, Lap Industri</p>
+                    </div>
+
+                    <button onclick="closeModal('aiModal'); switchTab('pembeliView');" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition text-xs mt-1">
+                        Cari Pembeli Terdekat Untuk Material Ini
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: ADD NEW LISTING (SELLER) -->
+    <div id="addListingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+            <div class="bg-navy-900 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-amber-400"></i> Tambah Postingan Material Sisa (Penjual)
+                </h3>
+                <button onclick="closeModal('addListingModal')" class="text-slate-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="addNewListing(event)" class="p-5 space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nama Perusahaan / UMKM Anda</label>
+                    <input type="text" id="newPenjualCompany" required placeholder="Contoh: CV Kayu Indah Jepara" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Judul Material Sisa</label>
+                        <input type="text" id="newPenjualTitle" required placeholder="Sisa Potongan Kayu Jati" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kategori Material</label>
+                        <select id="newPenjualCategory" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                            <option value="Kayu">Kayu & Mebel</option>
+                            <option value="Tekstil">Tekstil & Kain</option>
+                            <option value="Plastik">Plastik & Kemasan</option>
+                            <option value="Logam">Logam & Scrap</option>
+                            <option value="Kertas">Kertas & Karton</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Harga per Kg / Satuan</label>
+                        <input type="text" id="newPenjualPrice" required placeholder="Rp 8.500 / Kg" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Jumlah Volume Siap Jual</label>
+                        <input type="text" id="newPenjualVolume" required placeholder="250 Kg" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kota / Lokasi</label>
+                        <input type="text" id="newPenjualLocation" required placeholder="Bandung" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nomor WhatsApp / Hubungi</label>
+                        <input type="text" id="newPenjualPhone" required placeholder="08123456789" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow text-xs mt-2">
+                    Publikasikan Ke Katalog Penjual
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: ADD NEW DEMAND (BUYER) -->
+    <div id="addDemandModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+            <div class="bg-navy-900 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bullhorn text-blue-400"></i> Pasang Kebutuhan Bahan Sisa (Pembeli)
+                </h3>
+                <button onclick="closeModal('addDemandModal')" class="text-slate-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="addNewDemand(event)" class="p-5 space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Nama Perusahaan Pembeli (UMKM)</label>
+                    <input type="text" id="newPembeliCompany" required placeholder="Contoh: Toko Kerajinan Rotan Solo" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Material Yang Dicari</label>
+                        <input type="text" id="newPembeliTitle" required placeholder="Membutuhkan Limbah Karung Goni" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kategori</label>
+                        <select id="newPembeliCategory" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                            <option value="Tekstil">Tekstil & Kain</option>
+                            <option value="Kayu">Kayu & Mebel</option>
+                            <option value="Plastik">Plastik & Kemasan</option>
+                            <option value="Organik">Organik / Pangan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Target Beli (Harga Maks)</label>
+                        <input type="text" id="newPembeliPrice" required placeholder="Maks Rp 10.000 / Kg" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kebutuhan Rutin Per Bulan</label>
+                        <input type="text" id="newPembeliVolume" required placeholder="100 Kg / Bulan" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Kota UMKM Pembeli</label>
+                        <input type="text" id="newPembeliLocation" required placeholder="Solo" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nomor WhatsApp Kontak</label>
+                        <input type="text" id="newPembeliPhone" required placeholder="08198765432" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-navy-600">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow text-xs mt-2">
+                    Tayangkan Di Papan Permintaan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FIXED BOTTOM BAR MENU (DESKTOP & MOBILE RESPONSIVE) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-navy-900 border-t border-navy-800 z-40 shadow-2xl">
+        <div class="max-w-md mx-auto flex items-center justify-around py-2 px-3 text-slate-300 text-[11px]">
+            <button onclick="switchTab('homeView')" id="nav-homeView" class="nav-btn active flex flex-col items-center gap-1 text-emerald-400 font-semibold transition">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span>Beranda</span>
+            </button>
+
+            <button onclick="switchTab('penjualView')" id="nav-penjualView" class="nav-btn flex flex-col items-center gap-1 hover:text-white transition">
+                <div class="relative">
+                    <i class="fa-solid fa-store text-lg"></i>
+                    <span class="absolute -top-1 -right-2 bg-amber-500 text-[9px] text-navy-900 font-bold px-1 rounded-full">Penjual</span>
+                </div>
+                <span>Sisa Material</span>
+            </button>
+
+            <button onclick="switchTab('pembeliView')" id="nav-pembeliView" class="nav-btn flex flex-col items-center gap-1 hover:text-white transition">
+                <div class="relative">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span class="absolute -top-1 -right-2 bg-blue-500 text-[9px] text-white font-bold px-1 rounded-full">Pembeli</span>
+                </div>
+                <span>Kebutuhan</span>
+            </button>
+
+            <button onclick="switchTab('aiMatchView')" id="nav-aiMatchView" class="nav-btn flex flex-col items-center gap-1 hover:text-white transition">
+                <i class="fa-solid fa-robot text-lg text-emerald-400"></i>
+                <span>Match AI</span>
+            </button>
+
+            <button onclick="switchTab('profilView')" id="nav-profilView" class="nav-btn flex flex-col items-center gap-1 hover:text-white transition">
+                <i class="fa-solid fa-building text-lg"></i>
+                <span>Profil UMKM</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        // ==================== DATASET (PENJUAL & PEMBELI) ====================
+        let penjualData = [
+            {
+                id: 'p1',
+                company: 'CV WoodCraft Jepara',
+                companyType: 'Industri Mebel & Pengolahan Kayu',
+                pic: 'Bpk. Hendra Wijaya',
+                capacity: '500 Kg Potongan Kayu / Bulan',
+                title: 'Potongan Kayu Jati & Mahoni Sisa Ukir',
+                category: 'Kayu',
+                price: 'Rp 4.500 / Kg',
+                volume: '320 Kg Siap Angkut',
+                location: 'Jepara',
+                phone: '6281234567890',
+                address: 'Jl. Raya Tahunan No. 88, Jepara, Jawa Tengah',
+                savings: 'Hemat 65% vs Kayu Utuh',
+                badge: 'UMKM Mebel'
+            },
+            {
+                id: 'p2',
+                company: 'Konveksi Berkah Bandung',
+                companyType: 'Pabrik Garment & Pakaian Pria',
+                pic: 'Ibu Hj. Mariam',
+                capacity: '1.2 Ton Kain Perca / Bulan',
+                title: 'Kain Perca Katun & Denim Campur',
+                category: 'Tekstil',
+                price: 'Rp 12.000 / Kg',
+                volume: '150 Kg',
+                location: 'Bandung',
+                phone: '6281398765432',
+                address: 'Jl. Cigondewah Rahayu No. 12, Bandung',
+                savings: 'Hemat 50% vs Kain Meteran',
+                badge: 'Tekstil Unggulan'
+            },
+            {
+                id: 'p3',
+                company: 'PT Plastik Solusi Surabaya',
+                companyType: 'Pengolahan Kemasan Makanan',
+                pic: 'Bpk. Kevin Tan',
+                capacity: '2 Ton Scrap Biji Plastik',
+                title: 'Scrap Plastik PET Bening Bersih',
+                category: 'Plastik',
+                price: 'Rp 8.000 / Kg',
+                volume: '500 Kg',
+                location: 'Surabaya',
+                phone: '628176543210',
+                address: 'Kawasan Industri Rungkut, Surabaya',
+                savings: 'Bisa Diolah Ulang',
+                badge: 'Recycle Ready'
+            },
+            {
+                id: 'p4',
+                company: 'Logam Jaya Scrap Solo',
+                companyType: 'Bengkel Bubut & Las Presisi',
+                pic: 'Bpk. Joko Susilo',
+                capacity: '300 Kg Gram Besi / Bulan',
+                title: 'Gram & Potongan Besi Hollow Sisa',
+                category: 'Logam',
+                price: 'Rp 6.500 / Kg',
+                volume: '200 Kg',
+                location: 'Solo',
+                phone: '628154321098',
+                address: 'Jl. Veteran No. 102, Solo',
+                savings: 'Efisien Untuk Karoseri',
+                badge: 'Bengkel Metal'
+            }
+        ];
+
+        let pembeliData = [
+            {
+                id: 'b1',
+                company: 'Dapur Craft Nusantara',
+                companyType: 'Produsen Aksesoris Kain Daur Ulang',
+                pic: 'Ibu Ratna',
+                capacity: 'Butuh 200 Kg Kain Perca / Bln',
+                title: 'Mencari Kain Perca Katun / Motif',
+                category: 'Tekstil',
+                targetPrice: 'Maks Rp 15.000 / Kg',
+                volumeNeed: '150 Kg / Bulan',
+                location: 'Bandung',
+                phone: '6281298765432',
+                address: 'Jl. Industri Kriya No. 45, Cibaduyut, Bandung',
+                useCase: 'Untuk Bahan Taplak & Keset Motif',
+                badge: 'Pembeli Rutin'
+            },
+            {
+                id: 'b2',
+                company: 'Kerajinan Briket Arang Semarang',
+                companyType: 'UMKM Energi Biomasa',
+                pic: 'Bpk. Agus Rahardjo',
+                capacity: 'Butuh 1 Ton Serbuk Kayu',
+                title: 'Dibutuhkan Serbuk Kayu Halus / Gergaji',
+                category: 'Kayu',
+                targetPrice: 'Maks Rp 2.500 / Kg',
+                volumeNeed: '500 Kg / Bulan',
+                location: 'Jepara',
+                phone: '628187654321',
+                address: 'Jl. Pemuda No. 70, Semarang',
+                useCase: 'Bahan Baku Briket Ramah Lingkungan',
+                badge: 'Pabrik Briket'
+            },
+            {
+                id: 'b3',
+                company: 'Toko Pot Daur Ulang Surabaya',
+                companyType: 'UMKM Perlengkapan Kebun',
+                pic: 'Ibu Siska',
+                capacity: 'Butuh 300 Kg Plastik Cacat',
+                title: 'Mencari Limbah Kemasan Plastik HDPE',
+                category: 'Plastik',
+                targetPrice: 'Maks Rp 7.000 / Kg',
+                volumeNeed: '250 Kg',
+                location: 'Surabaya',
+                phone: '6281233445566',
+                address: 'Jl. Kenjeran No. 210, Surabaya',
+                useCase: 'Dicetak Menjadi Pot Tanaman',
+                badge: 'UMKM Kebun'
+            },
+            {
+                id: 'b4',
+                company: 'Kompostani Organik Sukoharjo',
+                companyType: 'Produsen Pupuk Organik',
+                pic: 'Bpk. Triyono',
+                capacity: 'Butuh 2 Ton Ampas Pangan',
+                title: 'Mencari Ampas Tahu / Kulit Buah Sisa',
+                category: 'Organik',
+                targetPrice: 'Maks Rp 1.500 / Kg',
+                volumeNeed: '1 Ton / Bulan',
+                location: 'Solo',
+                phone: '628190807060',
+                address: 'Kec. Kartasura, Sukoharjo',
+                useCase: 'Bahan Kompos & Feed Fermentasi',
+                badge: 'Bio Organik'
+            }
+        ];
+
+        // ==================== RENDER FUNCTIONS ====================
+        
+        function renderPenjualCards(list, containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            
+            container.innerHTML = list.map(item => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-3 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-box mr-1"></i> ${item.category}
+                            </span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded border border-emerald-200">
+                                ${item.savings}
+                            </span>
+                        </div>
+
+                        <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition">${item.title}</h4>
+                        
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-base font-extrabold text-navy-900">${item.price}</span>
+                            <span class="text-xs text-slate-400">/ Volume: <b>${item.volume}</b></span>
+                        </div>
+                    </div>
+
+                    <!-- Company Biodata Strip -->
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs space-y-1">
+                        <div class="flex items-center justify-between font-semibold text-slate-700">
+                            <span class="truncate max-w-[180px]"><i class="fa-solid fa-building text-slate-400 mr-1"></i> ${item.company}</span>
+                            <span class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot text-slate-400"></i> ${item.location}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 truncate">Sektor: ${item.companyType}</p>
+                    </div>
+
+                    <!-- Contact & Biodata Trigger Button -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="showCompanyBiodata('penjual', '${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-id-card text-blue-600"></i> Biodata
+                        </button>
+                        <a href="https://wa.me/${item.phone}?text=Halo%20${encodeURIComponent(item.company)},%20saya%20tertarik%20membeli%20material%20sisa%20${encodeURIComponent(item.title)}%20di%20Waste2Value" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPembeliCards(list, containerId) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+
+            container.innerHTML = list.map(item => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-3 relative group">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
+                                <i class="fa-solid fa-cart-shopping mr-1"></i> ${item.category}
+                            </span>
+                            <span class="text-[10px] bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">
+                                Kebutuhan Rutin
+                            </span>
+                        </div>
+
+                        <h4 class="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition">${item.title}</h4>
+                        
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-base font-extrabold text-navy-900">${item.targetPrice}</span>
+                            <span class="text-xs text-slate-400">/ Perlu: <b>${item.volumeNeed}</b></span>
+                        </div>
+
+                        <p class="text-[11px] text-slate-500 bg-amber-50/60 p-2 rounded-lg border border-amber-100">
+                            <b>Rencana Penggunaan:</b> ${item.useCase}
+                        </p>
+                    </div>
+
+                    <!-- Company Biodata Strip -->
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs space-y-1">
+                        <div class="flex items-center justify-between font-semibold text-slate-700">
+                            <span class="truncate max-w-[180px]"><i class="fa-solid fa-building text-slate-400 mr-1"></i> ${item.company}</span>
+                            <span class="text-[10px] text-slate-500"><i class="fa-solid fa-location-dot text-slate-400"></i> ${item.location}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 truncate">Dibutuhkan oleh: ${item.pic}</p>
+                    </div>
+
+                    <!-- Contact & Biodata Trigger Button -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="showCompanyBiodata('pembeli', '${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-id-card text-blue-600"></i> Biodata
+                        </button>
+                        <a href="https://wa.me/${item.phone}?text=Halo%20${encodeURIComponent(item.company)},%20saya%20punya%20pasokan%20material%20sisa%20untuk%20kebutuhan%20${encodeURIComponent(item.title)}%20di%20Waste2Value" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function switchTab(viewId) {
+            // Hide all view sections
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected section
+            const targetView = document.getElementById(viewId);
+            if(targetView) targetView.classList.remove('hidden');
+
+            // Update Bottom Nav Styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-emerald-400', 'font-semibold');
+                btn.classList.add('text-slate-300');
+            });
+            const activeNav = document.getElementById(`nav-${viewId}`);
+            if(activeNav) {
+                activeNav.classList.add('text-emerald-400', 'font-semibold');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            // Update Top Nav Styling
+            document.querySelectorAll('.top-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-navy-600', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            const tabKey = viewId.replace('View', '');
+            const activeTopTab = document.getElementById(`topTab-${tabKey}`);
+            if(activeTopTab) {
+                activeTopTab.classList.add('bg-navy-600', 'text-white');
+                activeTopTab.classList.remove('text-slate-300');
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function filterCategory(cat) {
+            switchTab('penjualView');
+            const selectEl = document.getElementById('filterPenjualKat');
+            if(selectEl) {
+                selectEl.value = cat;
+                filterPenjualListings();
+            }
+        }
+
+        function filterPenjualListings() {
+            const query = document.getElementById('searchPenjualInput').value.toLowerCase();
+            const cat = document.getElementById('filterPenjualKat').value;
+            const loc = document.getElementById('filterPenjualKota').value;
+
+            const filtered = penjualData.filter(item => {
+                const matchQuery = item.title.toLowerCase().includes(query) || item.company.toLowerCase().includes(query);
+                const matchCat = (cat === 'ALL') || (item.category === cat);
+                const matchLoc = (loc === 'ALL') || (item.location === loc);
+                return matchQuery && matchCat && matchLoc;
+            });
+
+            renderPenjualCards(filtered, 'penjualGridContainer');
+            document.getElementById('penjualCountBadge').innerText = `${filtered.length} Material`;
+        }
+
+        function filterPembeliListings() {
+            const query = document.getElementById('searchPembeliInput').value.toLowerCase();
+            const cat = document.getElementById('filterPembeliKat').value;
+
+            const filtered = pembeliData.filter(item => {
+                const matchQuery = item.title.toLowerCase().includes(query) || item.company.toLowerCase().includes(query);
+                const matchCat = (cat === 'ALL') || (item.category === cat);
+                return matchQuery && matchCat;
+            });
+
+            renderPembeliCards(filtered, 'pembeliGridContainer');
+            document.getElementById('pembeliCountBadge').innerText = `${filtered.length} Permintaan`;
+        }
+
+        function showCompanyBiodata(type, id) {
+            let item;
+            if(type === 'penjual') {
+                item = penjualData.find(x => x.id === id);
+            } else {
+                item = pembeliData.find(x => x.id === id);
+            }
+
+            if(!item) return;
+
+            document.getElementById('modalCompanyTitle').innerText = `Biodata Perusahaan ${type === 'penjual' ? 'Penjual' : 'Pembeli'}`;
+            document.getElementById('modalCompanyName').innerText = item.company;
+            document.getElementById('modalCompanyType').innerText = item.companyType;
+            document.getElementById('modalCompanyAvatar').innerText = item.company.substring(0, 2).toUpperCase();
+            document.getElementById('modalCompanyAddress').innerText = item.address || `${item.location}, Indonesia`;
+            document.getElementById('modalCompanyPIC').innerText = item.pic || 'Manager UMKM';
+            document.getElementById('modalCompanyCapacity').innerText = item.capacity || item.volume || 'Siap Suplai';
+            document.getElementById('modalPhoneText').innerText = item.phone;
+            
+            const waLink = `https://wa.me/${item.phone}?text=Halo%20${encodeURIComponent(item.company)},%20saya%20menghubungi%20Anda%20dari%20platform%20Waste2Value%20mengenai%20${encodeURIComponent(item.title)}`;
+            document.getElementById('modalWhatsAppBtn').setAttribute('href', waLink);
+
+            openModal('companyModal');
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.add('hidden');
+        }
+
+        function runAIMatch(e) {
+            if(e) e.preventDefault();
+
+            const role = document.querySelector('input[name="userRole"]:checked').value;
+            const category = document.getElementById('aiCatSelect').value;
+            const location = document.getElementById('aiLocSelect').value;
+
+            // Find matching counterpart
+            let matches = [];
+            if(role === 'penjual') {
+                // If user is Penjual, show Pembeli matches
+                matches = pembeliData.filter(b => b.category === category || b.location === location);
+                if(matches.length === 0) matches = pembeliData;
+            } else {
+                // If user is Pembeli, show Penjual matches
+                matches = penjualData.filter(p => p.category === category || p.location === location);
+                if(matches.length === 0) matches = penjualData;
+            }
+
+            renderAIMatchResults(matches, role);
+        }
+
+        function renderAIMatchResults(matches, role) {
+            const container = document.getElementById('aiResultsList');
+            document.getElementById('aiMatchCountBadge').innerText = `${matches.length} Match Ditemukan`;
+
+            container.innerHTML = matches.map((m, index) => {
+                const matchScore = 98 - (index * 5);
+                return `
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-500 transition space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-navy-900 text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-building text-blue-600"></i> ${m.company}
+                            </span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-300">
+                                <i class="fa-solid fa-bolt mr-1"></i> ${matchScore}% Match Rate
+                            </span>
+                        </div>
+
+                        <p class="text-xs font-semibold text-slate-700">${m.title}</p>
+
+                        <div class="flex flex-wrap gap-3 text-[11px] text-slate-500">
+                            <span><i class="fa-solid fa-location-dot mr-1 text-slate-400"></i> ${m.location}</span>
+                            <span><i class="fa-solid fa-tag mr-1 text-slate-400"></i> ${m.price || m.targetPrice}</span>
+                            <span><i class="fa-solid fa-boxes-stacked mr-1 text-slate-400"></i> ${m.volume || m.volumeNeed}</span>
+                        </div>
+
+                        <div class="pt-2 flex gap-2">
+                            <button onclick="showCompanyBiodata('${role === 'penjual' ? 'pembeli' : 'penjual'}', '${m.id}')" class="w-full bg-navy-800 hover:bg-navy-900 text-white font-semibold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-id-card"></i> Lihat Biodata & Kontak WA
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // AI Scan simulation
+        function triggerAIScan() {
+            const line = document.getElementById('scannerLine');
+            const resultBox = document.getElementById('aiScanResult');
+            
+            line.classList.remove('hidden');
+            setTimeout(() => {
+                line.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+            }, 1800);
+        }
+
+        // Form handlers for adding items
+        function addNewListing(e) {
+            e.preventDefault();
+            const newItem = {
+                id: 'p' + (penjualData.length + 1),
+                company: document.getElementById('newPenjualCompany').value,
+                companyType: 'UMKM Terdaftar',
+                pic: 'Pemilik Usaha',
+                capacity: 'Tersedia Lengkap',
+                title: document.getElementById('newPenjualTitle').value,
+                category: document.getElementById('newPenjualCategory').value,
+                price: document.getElementById('newPenjualPrice').value,
+                volume: document.getElementById('newPenjualVolume').value,
+                location: document.getElementById('newPenjualLocation').value,
+                phone: document.getElementById('newPenjualPhone').value,
+                address: document.getElementById('newPenjualLocation').value + ', Indonesia',
+                savings: 'Harga UMKM Direct',
+                badge: 'Listing Baru'
+            };
+
+            penjualData.unshift(newItem);
+            renderPenjualCards(penjualData, 'penjualGridContainer');
+            renderPenjualCards(penjualData.slice(0, 2), 'homePenjualContainer');
+            closeModal('addListingModal');
+            switchTab('penjualView');
+        }
+
+        function addNewDemand(e) {
+            e.preventDefault();
+            const newItem = {
+                id: 'b' + (pembeliData.length + 1),
+                company: document.getElementById('newPembeliCompany').value,
+                companyType: 'UMKM Industri Kreatif',
+                pic: 'Penanggung Jawab',
+                capacity: 'Penerima Bahan Baku',
+                title: document.getElementById('newPembeliTitle').value,
+                category: document.getElementById('newPembeliCategory').value,
+                targetPrice: document.getElementById('newPembeliPrice').value,
+                volumeNeed: document.getElementById('newPembeliVolume').value,
+                location: document.getElementById('newPembeliLocation').value,
+                phone: document.getElementById('newPembeliPhone').value,
+                address: document.getElementById('newPembeliLocation').value + ', Indonesia',
+                useCase: 'Produksi Bahan Baku Olahan',
+                badge: 'Permintaan Baru'
+            };
+
+            pembeliData.unshift(newItem);
+            renderPembeliCards(pembeliData, 'pembeliGridContainer');
+            renderPembeliCards(pembeliData.slice(0, 2), 'homePembeliContainer');
+            closeModal('addDemandModal');
+            switchTab('pembeliView');
+        }
+
+        window.onload = function() {
+            renderPenjualCards(penjualData.slice(0, 2), 'homePenjualContainer');
+            renderPembeliCards(pembeliData.slice(0, 2), 'homePembeliContainer');
+            renderPenjualCards(penjualData, 'penjualGridContainer');
+            renderPembeliCards(pembeliData, 'pembeliGridContainer');
+            
+            // Run initial AI Match preview
+            runAIMatch(null);
+        };
+    </script>
+</body>
+</html>
